@@ -1,23 +1,28 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete,Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete,Query, UseGuards,Req  } from '@nestjs/common';
 import { MerchantsService } from './merchants.service';
 import { CreateMerchantDto } from './dto/create-merchant.dto';
 import { UpdateMerchantDto } from './dto/update-merchant.dto';
 import { MerchantEntity } from './entities/merchant.entity';
 import { ApiCreatedResponse,ApiQuery,ApiOkResponse, ApiParam } from '@nestjs/swagger';
 import { UpdateMerchantStateDto } from './dto/update-state.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { AuthenticatedRequest } from 'src/interfaces/authenticated-user.interface';
+
 
 @Controller('merchants')
 export class MerchantsController {
   constructor(private readonly merchantsService: MerchantsService) {}
 
   @Post()
-
+  @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({type:MerchantEntity})
-  create(@Body() createMerchantDto: CreateMerchantDto) {
+  create(@Req() req:AuthenticatedRequest,@Body() createMerchantDto: CreateMerchantDto) {
+    req.user;
     return this.merchantsService.create(createMerchantDto);
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({type:MerchantEntity, isArray:true})
   @ApiQuery({name:'businessName', required: false})
   @ApiQuery({name:'registrationDate', required: false})
@@ -41,18 +46,21 @@ export class MerchantsController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({type:MerchantEntity})
   findOne(@Param('id') id: string) {
     return this.merchantsService.findOne(+id);
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({type:MerchantEntity})
   update(@Param('id') id: string, @Body() updateMerchantDto: UpdateMerchantDto) {
     return this.merchantsService.update(+id, updateMerchantDto);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({type:MerchantEntity})
   remove(@Param('id') id: string) {
     return this.merchantsService.remove(+id);
@@ -60,6 +68,7 @@ export class MerchantsController {
 
 
   @Patch('/update-state/:id')
+  @UseGuards(JwtAuthGuard)
   @ApiParam({ name: 'id', description: 'ID del comerciante', type: Number })
   @ApiOkResponse({ type: MerchantEntity, description: 'Estado actualizado con éxito' })
   updateState(@Param('id') id: string,

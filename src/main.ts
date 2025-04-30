@@ -10,6 +10,15 @@ async function bootstrap() {
     .setTitle('API Adminitración de Establecimientos')
     .setDescription('Administracion de establecimiento, cmerciantes y usuarios')
     .setVersion('0.1')
+    .addBearerAuth({
+      type:'http',
+      scheme:'bearer',
+      bearerFormat:'JWT',
+      in:'header',
+      name:'Authorization',
+      description:'Enter your Bearer token'
+    })
+    .addSecurityRequirements('bearer')
     .build()
 
   const document = SwaggerModule.createDocument(app,config);
@@ -20,6 +29,8 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
     transform: true,
   }));
+
+
 
   await app.listen(process.env.PORT ?? 3000);
 }
