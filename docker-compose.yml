@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: velasquezadmin
+      POSTGRES_PASSWORD: D7p$3r!uVg9q@1ZwTb8&
+      POSTGRES_DB: esta_manag
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  nest_dev:
+    build: .
+    container_name: nest_dev
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - .env
+    command: ["npm", "run", "start:dev"]
+
+volumes:
+  postgres_data:
