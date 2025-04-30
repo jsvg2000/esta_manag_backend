@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { MerchantsModule } from './merchants/merchants.module';
+import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder  } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(MerchantsModule);
+  const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
     .setTitle('API Adminitración de Establecimientos')
@@ -16,7 +16,7 @@ async function bootstrap() {
   SwaggerModule.setup('doc-api',app,document);
   
   app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
+    whitelist: false,
     forbidNonWhitelisted: true,
     transform: true,
   }));
