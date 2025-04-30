@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete,Query, UseGuards,Req  } from '@nestjs/common';
+import { Controller, Get,Res, Post, Body, Patch, Param, Delete,Query, UseGuards,Req  } from '@nestjs/common';
 import { MerchantsService } from './merchants.service';
 import { CreateMerchantDto } from './dto/create-merchant.dto';
 import { UpdateMerchantDto } from './dto/update-merchant.dto';
@@ -9,7 +9,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { AuthenticatedRequest } from 'src/interfaces/authenticated-user.interface';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-
+import { Response } from 'express';
 
 @Controller('merchants')
 export class MerchantsController {
@@ -46,6 +46,17 @@ export class MerchantsController {
       registrationDate: registrationDate ? new Date(registrationDate) : undefined,
       stateId: stateId ? Number(stateId) : undefined,
     });
+  }
+
+  @Get('/csv-activos')
+  @Roles([1])
+  @UseGuards(JwtAuthGuard,RolesGuard)
+  async downloadcsv(@Res() res: Response) {
+    const contenidoCsv = await this.merchantsService.generateCsvActiveMerchants();
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="comerciantes_activos.csv"');
+    res.send(contenidoCsv);
   }
 
   @Get(':id')

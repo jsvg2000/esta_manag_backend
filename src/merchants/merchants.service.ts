@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateMerchantDto } from './dto/create-merchant.dto';
 import { UpdateMerchantDto } from './dto/update-merchant.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-
+import { unparse } from 'papaparse';
+import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class MerchantsService {
@@ -67,12 +68,13 @@ export class MerchantsService {
   }
 
   findOne(id: number) {
-    return this.prisma.merchant.findUnique({where:{
-      id,
-    },
-    include: {
-      state: true, // 🔍 Trae toda la información del rol
-    },
+    return this.prisma.merchant.findUnique({
+      where:{
+        id:id
+      },
+      include: {
+        state: true, 
+      },
     });
   }
 
@@ -101,4 +103,37 @@ export class MerchantsService {
       }
     });
   }
+
+  async generateCsvActiveMerchants(): Promise<string> {
+    const merchants = await this.prisma.merchant.findMany({
+      where: { stateId: 1 },
+      include: { establishments: true },
+    });
+  
+    const data = merchants.map(c => {
+      const cantidadEstablecimientos = c.establishments.length;
+      const totalIngresos = c.establishments.reduce(
+        (sum, e) => sum.plus(e.revenue),
+        new Decimal(0)
+      );
+      const cantidadEmpleados = c.establishments.reduce((sum, e) => sum + e.numberOfEmployees, 0);
+  
+      return {
+        nombre: c.businessName,
+        municipio: c.municipality,
+        telefono: c.phone,
+        correo: c.email,
+        fechaRegistro: c.registrationDate.toISOString().split('T')[0],
+        estado: c.stateId === 1 ? 'ACTIVO' : 'INACTIVO',
+        cantidadEstablecimientos,
+        totalIngresos,
+        cantidadEmpleados,
+      };
+    });
+    return unparse(data, {
+      delimiter: '|',
+      header: true,
+    });
+  }
+
 }
