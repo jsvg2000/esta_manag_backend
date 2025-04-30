@@ -7,6 +7,8 @@ import { ApiCreatedResponse,ApiQuery,ApiOkResponse, ApiParam } from '@nestjs/swa
 import { UpdateMerchantStateDto } from './dto/update-state.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { AuthenticatedRequest } from 'src/interfaces/authenticated-user.interface';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 
 @Controller('merchants')
@@ -14,7 +16,8 @@ export class MerchantsController {
   constructor(private readonly merchantsService: MerchantsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @Roles([1])
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @ApiCreatedResponse({type:MerchantEntity})
   create(@Req() req:AuthenticatedRequest,@Body() createMerchantDto: CreateMerchantDto) {
     req.user;
@@ -53,14 +56,16 @@ export class MerchantsController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @Roles([1])
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @ApiCreatedResponse({type:MerchantEntity})
   update(@Param('id') id: string, @Body() updateMerchantDto: UpdateMerchantDto) {
     return this.merchantsService.update(+id, updateMerchantDto);
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @Roles([1])
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @ApiCreatedResponse({type:MerchantEntity})
   remove(@Param('id') id: string) {
     return this.merchantsService.remove(+id);

@@ -14,7 +14,6 @@ export class AuthController {
         @Body() data: LoginDto
     ){
         const userToken = await this.authService.validateUser(data);
-        console.log('Data',data);
         if(!userToken) throw new HttpException('User not found', HttpStatus.NOT_FOUND)
         
         return userToken;
