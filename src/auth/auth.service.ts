@@ -18,11 +18,11 @@ export class AuthService {
         if(!foundUser) return null;
 
         if(foundUser.password === user.password){
-            return this.jwtService.sign({
+            return {toke : this.jwtService.sign({
                 id:foundUser.id,
                 email:foundUser.email,
                 role: foundUser.roleId
-            })
+            })}
         }
 
     }
